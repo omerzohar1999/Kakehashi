@@ -6,6 +6,7 @@ import LessonPickerScreen from "../(app)/lesson-picker";
 
 jest.mock("expo-router", () => ({
   router: { replace: jest.fn(), back: jest.fn() },
+  useLocalSearchParams: () => ({}),
 }));
 
 jest.mock("@expo/vector-icons", () => ({ Ionicons: () => null }));

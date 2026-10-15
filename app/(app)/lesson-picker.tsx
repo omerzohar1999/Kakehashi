@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -18,6 +18,10 @@ import {
   getSubjects,
 } from "../../src/utils/api";
 import { getRemainingDailyLessonSlots } from "../../src/utils/dailyLessonLimit";
+import {
+  createLearningPageSubjectMatcher,
+  getLearningPage,
+} from "../../src/utils/learningPages";
 import { useAuthStore, useSettingsStore } from "../../src/utils/store";
 import { useTheme } from "../../src/utils/theme";
 
@@ -37,6 +41,10 @@ export default function LessonPickerScreen() {
     (state) => state.excludeKanaVocabularyFromLessons
   );
   const { isLoading: isAuthLoading } = useSession();
+  const { learningPageId } = useLocalSearchParams<{ learningPageId?: string }>();
+  const learningPage = useSettingsStore((state) =>
+    getLearningPage(state.learningPages, learningPageId)
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [allLessons, setAllLessons] = useState<LessonPickerItem[]>([]);
 
@@ -81,6 +89,8 @@ export default function LessonPickerScreen() {
 
       // Create lesson picker items by combining assignment and subject data
       const items: LessonPickerItem[] = [];
+      const matchesLearningPage =
+        learningPage && createLearningPageSubjectMatcher(learningPage.filter);
 
       lessonsResponse.data.forEach((assignment) => {
         const subject = subjectsResponse.data.find(
@@ -100,6 +110,9 @@ export default function LessonPickerScreen() {
           excludeKanaVocabularyFromLessons &&
           subject.object === "kana_vocabulary"
         ) {
+          return;
+        }
+        if (matchesLearningPage && !matchesLearningPage(subject)) {
           return;
         }
 
@@ -125,7 +138,9 @@ export default function LessonPickerScreen() {
       if (items.length === 0) {
         Alert.alert(
           "No Lessons Available",
-          "No lessons are available with your current kana vocabulary filter.",
+          learningPage
+            ? `No lessons are available on “${learningPage.name}” right now.`
+            : "No lessons are available with your current kana vocabulary filter.",
           [{ text: "OK", onPress: () => router.back() }]
         );
         return;
@@ -140,7 +155,7 @@ export default function LessonPickerScreen() {
     } finally {
       setIsLoading(false);
     }
-  }, [apiToken, excludeKanaVocabularyFromLessons, isAuthLoading]);
+  }, [apiToken, excludeKanaVocabularyFromLessons, isAuthLoading, learningPage]);
 
   useEffect(() => {
     loadLessons();
