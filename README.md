@@ -104,6 +104,15 @@ app text keep their own sizes. On the web, you can also change **Question text
 size** from the review session's settings button, including on a phone with the
 keyboard open.
 
+## Learning pages
+
+Use **Settings → Appearance → Learning Pages** to add filtered versions of
+Home, such as one page for radicals and kanji and another for vocabulary. Pages
+filter by item type, level range, JLPT level, SRS stage and critical items. A
+switcher at the top of Home moves between **All** and your pages; each page's
+counts, forecast, lessons and reviews include only matching items. Without any
+pages, Home is unchanged.
+
 ## Connecting Spotify
 
 The mobile app includes a personal Spotify setup guide in **Settings → Music
