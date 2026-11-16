@@ -210,6 +210,16 @@ export default function KanjiProgressScreen() {
       };
     });
 
+    // JLPT: SRS stage descending, then WaniKani level; kanji outside WaniKani (stage -1) last
+    if (category === "jlpt") {
+      return mapped.sort(
+        (a, b) =>
+          b.srsStage - a.srsStage ||
+          (a.wanikaniLevel ?? Infinity) - (b.wanikaniLevel ?? Infinity) ||
+          a.kanji.localeCompare(b.kanji)
+      );
+    }
+
     // Sort: SRS Stage Descending, then Character
     return mapped.sort((a, b) => {
       if (a.srsStage !== b.srsStage) {

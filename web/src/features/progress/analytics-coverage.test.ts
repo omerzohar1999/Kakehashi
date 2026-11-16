@@ -52,6 +52,14 @@ describe("analytics coverage", () => {
     expect(n5.entries.some((entry) => !entry.subject)).toBe(true);
   });
 
+  it("sorts JLPT kanji by SRS stage, then WaniKani level, with kanji outside WaniKani last", () => {
+    const groups = buildCoverageGroups("jlpt", [assignment(1, 5), assignment(4, 5), assignment(3, 1)], [subject(1, "日", 3), subject(2, "月", 1), subject(3, "火", 2), subject(4, "水", 2)]);
+    const n5 = groups.find((group) => group.key === "N5")!;
+    expect(n5.entries.slice(0, 4).map((entry) => entry.character)).toEqual(["水", "日", "火", "月"]);
+    const firstOutside = n5.entries.findIndex((entry) => !entry.subject);
+    expect(n5.entries.slice(firstOutside).every((entry) => !entry.subject)).toBe(true);
+  });
+
   it("includes kana-only vocabulary and unstarted later levels", () => {
     const groups = buildCoverageGroups("vocabulary", [assignment(1, 5)], [subject(1, "こんにちは", 1, "kana_vocabulary"), subject(2, "日本", 10, "vocabulary")]);
     expect(groups.map(({ known, total }) => ({ known, total }))).toEqual([{ known: 1, total: 1 }, { known: 0, total: 1 }]);

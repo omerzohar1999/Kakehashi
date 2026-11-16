@@ -36,6 +36,8 @@ export function buildCoverageGroups(catalog: CoverageCatalog, assignments: Assig
       const subject = kanji.get(character);
       return { character, subject, stage: subject ? stages.get(subject.id) ?? 0 : 0 };
     });
+    // JLPT: SRS stage descending, then WaniKani level; kanji outside WaniKani go last.
+    if (catalog === "jlpt") entries.sort((a, b) => Number(!a.subject) - Number(!b.subject) || b.stage - a.stage || (a.subject?.data.level ?? 0) - (b.subject?.data.level ?? 0) || (a.subject?.id ?? 0) - (b.subject?.id ?? 0));
     const label = catalog === "jlpt" ? key : catalog === "joyo" ? key === "9" ? "Secondary" : `Grade ${key}` : `${Number(key) - 499}-${key}`;
     return { key, label, entries, known: entries.filter(passed).length, total: entries.length };
   });
